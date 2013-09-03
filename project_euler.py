@@ -5,6 +5,8 @@ import operator
 import itertools
 import csv
 
+import euler_utils as utils
+
 def problem_1():
 	return sum(xrange(3,1000,3)) + sum(xrange(5,1000,5)) - sum(xrange(15,1000,15))
 
@@ -20,67 +22,15 @@ def problem_2():
 	    prev = temp
 	return sum
 
-def prime_factorize(number, complete_prime_list = None):
-	factors = []
-
-	# this reduces the search space
-	if complete_prime_list is not None:
-		if number in complete_prime_list:
-			return [number]
-
-		for prime in complete_prime_list:
-			if prime > number:
-				break
-
-			while number%prime == 0:
-				factors.append(prime)
-				number /= prime
-
-		return factors
-
-	while number %2 == 0:
-		factors.append(2)
-		number = number/2
-
-	divisor = 3
-	while divisor <= number:
-		while number %divisor == 0:
-			factors.append(divisor)
-			number /= divisor
-		divisor += 2
-
-	return factors
-
 def problem_3():
-	return prime_factorize(600851475143)[-1]
-
-def is_palindrome(number):
-	number = str(number)
-	for i in range(len(number)):
-		if number[i] != number[-i-1]:
-			return False
-
-	return True
+	return utils.prime_factorize(600851475143)[-1]
 
 def problem_4():
-	vect_palindrome = np.vectorize(is_palindrome)
+	vect_palindrome = np.vectorize(utils.is_palindrome)
 	domain = np.arange(1,1000)
 	all = np.outer(domain, domain)
 	usable = vect_palindrome(all)
 	return np.max(all[usable])
-
-
-# admittedly this helped # http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n-in-python/3035188#3035188
-# though I did re implement it on my own and now mine is faster (not sure why)
-def get_primes_below(number):
-	is_prime = np.ones(number/2, dtype = bool)
-	for n in xrange(3, int(np.sqrt(number))+1, 2):
-		if is_prime[n/2]:
-			is_prime[(n**2)/2:number:n] = False
-
-	primes = (np.where(is_prime)[0]*2)+1
-	primes[0] = 2
-	return primes
 
 # problem 5
 
@@ -89,7 +39,7 @@ def problem_5(num = 20):
 What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
 """
 
-	primes = get_primes_below(num)
+	primes = utils.get_primes_below(num)
 	factors = [pow(prime, int(math.log(num)/math.log(prime))) for prime in primes]
 
 	value = reduce(operator.mul, factors, 1)
@@ -103,7 +53,7 @@ def problem_6():
 def problem_7():
 	"""By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13. 
 What is the 10 001st prime number?"""
-	primes = get_primes_below(1000000)
+	primes = utils.get_primes_below(1000000)
 	return primes[10000]
 
 def problem_8():
@@ -157,7 +107,8 @@ Find the product abc."""
  	for real in xrange(1000):
  		option = sol_1(real)
  		if condition(option):
- 			return option
+ 			print option
+ 			return reduce(operator.mul, option)
 
 
  	
@@ -167,7 +118,7 @@ Find the product abc."""
 def problem_10():
 	"""The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
 Find the sum of all the primes below two million."""
-	return sum(get_primes_below(2000000))
+	return sum(utils.get_primes_below(2000000))
 
 def problem_11():
 	"""find largest product of 4 numbers in given grid going up, down, lr, diag"""
@@ -242,19 +193,6 @@ def problem_11():
 
 	return np.max(bests)
 
-
-def get_divizors(n, complete_prime_list = None):
-	if complete_prime_list is not None:
-		primes = prime_factorize(n, complete_prime_list)
-	else:
-		primes = prime_factorize(n)
-	divizors = set([1, n])
-	for i in xrange(1, len(primes)):
-		for combo in itertools.combinations(primes, i):
-			divizors.add(reduce(operator.mul, combo))
-
-	return divizors
-
 # TODO: this is brute force
 def problem_12():
 	def get_natural_num_sum(n):
@@ -262,7 +200,7 @@ def problem_12():
 
 	n = 1
 	while True:
-		val = len(get_divizors(get_natural_num_sum(n)))
+		val = len(utils.get_divizors(get_natural_num_sum(n)))
 		if val > 500:
 			return get_natural_num_sum(n)
 		n += 1
@@ -372,7 +310,7 @@ def problem_13():
 				20849603980134001723930671666823555245252804609722,
 				53503534226472524250874054075591789781264330331690]
 	num_sum = reduce(operator.add, numbers)
-	return str(num_sum)[:10]
+	return int(str(num_sum)[:10])
 
 def problem_14():
 	def next(n):
@@ -554,8 +492,8 @@ def problem_20():
 
 def problem_21():
 	start_num = 3
-	primes = get_primes_below(10000)	
-	factors = [get_divizors(x, primes) for x in xrange(start_num, 10000)]
+	primes = utils.get_primes_below(10000)	
+	factors = [utils.get_divizors(x, primes) for x in xrange(start_num, 10000)]
 	[factors[i].remove(i + start_num) for i in xrange(10000-start_num)]
 	factor_sum = [reduce(operator.add, factor) for factor in factors]
 
@@ -593,8 +531,8 @@ def problem_23():
 
 	# copied from 21, should this be a function get_proper divizors? set up unit tests first
 	start_num = 3
-	primes = get_primes_below(28123)	
-	factors = [get_divizors(x, primes) for x in xrange(start_num, 28123)]
+	primes = utils.get_primes_below(28123)	
+	factors = [utils.get_divizors(x, primes) for x in xrange(start_num, 28123)]
 	[factors[i].remove(i + start_num) for i in xrange(28123-start_num)]
 	factor_sum = [reduce(operator.add, factor) for factor in factors]
 
@@ -603,7 +541,7 @@ def problem_23():
 	ab_sums = set(reduce(operator.add, x) for x in itertools.combinations(ab_set, 2))
 	ab_sums = ab_sums.union(set([x*2 for x in abundants]))
 	answers = set(xrange(28124)).difference(ab_sums)
-	return len(list(answers))
+	return reduce(operator.add, answers)
 
 def problem_24():
 	perms = itertools.permutations(range(10),10)
