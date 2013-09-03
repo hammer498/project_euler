@@ -11,16 +11,12 @@ def problem_1():
 	return sum(xrange(3,1000,3)) + sum(xrange(5,1000,5)) - sum(xrange(15,1000,15))
 
 def problem_2():
-	curr = 1
-	prev = 1
-	sum = 0
-	while curr < 4000000:
-	    if curr %2 == 0:
-	        sum += curr
-	    temp = curr
-	    curr = curr + prev
-	    prev = temp
-	return sum
+	result_sum = 0
+	for num in utils.fibonnaci():
+		if num > 4000000:
+			return result_sum
+		if num %2 == 0:
+			result_sum += num
 
 def problem_3():
 	return utils.prime_factorize(600851475143)[-1]
