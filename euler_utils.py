@@ -71,7 +71,17 @@ def get_primes_below(number):
 	primes[0] = 2
 	return primes
 
-def get_divizors(n, complete_prime_list = None):
+def get_divizors(n, proper = False):
+	divizors = set()
+	for x in xrange(1, int(n**.5 + 1)):
+		if n%x == 0:
+			divizors.add(x)
+			divizors.add(n//x)
+	if proper:
+		divizors.remove(n)
+	return divizors
+
+def get_divizors_given_primes(n, complete_prime_list = None, proper = False):
 	if n == 0:
 		return []
 	if complete_prime_list is not None:
@@ -83,6 +93,8 @@ def get_divizors(n, complete_prime_list = None):
 		for combo in itertools.combinations(primes, i):
 			divizors.add(reduce(operator.mul, combo))
 
+	if proper:
+		divizors.remove(n)
 	return divizors
 
 # stolen from tyler

@@ -28,8 +28,6 @@ def problem_4():
 	usable = vect_palindrome(all)
 	return np.max(all[usable])
 
-# problem 5
-
 def problem_5(num = 20):
 	"""# 2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
 What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
@@ -488,9 +486,7 @@ def problem_20():
 
 def problem_21():
 	start_num = 3
-	primes = utils.get_primes_below(10000)	
-	factors = [utils.get_divizors(x, primes) for x in xrange(start_num, 10000)]
-	[factors[i].remove(i + start_num) for i in xrange(10000-start_num)]
+	factors = [utils.get_divizors(x, True) for x in xrange(start_num, 10000)]
 	factor_sum = [reduce(operator.add, factor) for factor in factors]
 
 	# padd to make indexing easier
@@ -527,9 +523,7 @@ def problem_23():
 
 	# copied from 21, should this be a function get_proper divizors? set up unit tests first
 	start_num = 3
-	primes = utils.get_primes_below(28123)	
-	factors = [utils.get_divizors(x, primes) for x in xrange(start_num, 28123)]
-	[factors[i].remove(i + start_num) for i in xrange(28123-start_num)]
+	factors = [utils.get_divizors(x, True) for x in xrange(start_num, 28123)]
 	factor_sum = [reduce(operator.add, factor) for factor in factors]
 
 	abundants = [i + start_num for i,factor in enumerate(factors) if reduce(operator.add, factor) > i + 3]
