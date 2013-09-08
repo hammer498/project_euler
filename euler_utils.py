@@ -4,6 +4,11 @@ import operator
 import numpy as np
 
 
+def triangle_numbers():
+	n = 1
+	while(True):
+		yield n*(n+1)/2
+		n+=1
 def fibonnaci():
 	curr = 1
 	prev = 0

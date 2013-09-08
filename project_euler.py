@@ -4,6 +4,12 @@ import math
 import operator
 import itertools
 import csv
+import collections
+import decimal
+import sympy
+import decimal
+
+
 
 import euler_utils as utils
 
@@ -519,17 +525,12 @@ def problem_22():
 	return reduce(operator.add, scores_list)
 
 def problem_23():
-	# find abundand numbers below 28123
-
-	# copied from 21, should this be a function get_proper divizors? set up unit tests first
 	start_num = 3
-	factors = [utils.get_divizors(x, True) for x in xrange(start_num, 28123)]
-	factor_sum = [reduce(operator.add, factor) for factor in factors]
+	factor_sums = [reduce(operator.add, utils.get_divizors(x, True)) for x in xrange(start_num, 28123)]
 
-	abundants = [i + start_num for i,factor in enumerate(factors) if reduce(operator.add, factor) > i + 3]
-	ab_set = set(abundants)
+	ab_set = set([i + start_num for i,f_sum in enumerate(factor_sums) if f_sum > i + 3])
 	ab_sums = set(reduce(operator.add, x) for x in itertools.combinations(ab_set, 2))
-	ab_sums = ab_sums.union(set([x*2 for x in abundants]))
+	ab_sums = ab_sums.union(set([x*2 for x in ab_set]))
 	answers = set(xrange(28124)).difference(ab_sums)
 	return reduce(operator.add, answers)
 
@@ -538,6 +539,171 @@ def problem_24():
 	for indx, val in enumerate(perms):
 		if indx == 1000000 - 1:
 			return int(reduce(operator.add, [str(x) for x in val]))
+
+def problem_25():
+	for i, fib in enumerate(utils.fibonnaci()):
+		if len(str(fib)) >= 1000:
+			return i
+
+def count_decimal_digits_in_divizor(n):
+	decimal.getcontext().prec = 100
+	digits = str(decimal.Decimal(1)/decimal.Decimal(n))[2:]
+	count = collections.Counter(digits)
+
+	if len(digits) < 100:
+		return count, 1
+	else :
+		counts = np.array([count[x] for x in count])
+		max_val = max(counts)
+		return count, sum(counts >= max_val - 4)
+
+def problem_26():
+	def get_n_decimal_digits(n, num, den):
+		decimal.getcontext().prec = n
+		digits = str(decimal.Decimal(num)/decimal.Decimal(den))[2:]
+		return digits
+
+	max_length = 0
+	decimal_count = 1000
+	for i in xrange(1,1000):
+		digits = get_n_decimal_digits(decimal_count, 1, i)
+		if len(digits) < decimal_count:
+			continue
+
+		worked = False
+		length_guess = 1
+		while(not worked):
+			for j in xrange(10, decimal_count-10 - length_guess):
+				if digits[j] != digits[j+length_guess]:
+					length_guess += 1
+					break
+			else:
+				worked = True
+		if length_guess > max_length:
+			max_length = length_guess
+			best_val = i
+
+	return max_length, best_val
+
+def problem_27():
+	max_n_estimate = 200
+	primes = set(utils.get_primes_below(max_n_estimate**2 + max_n_estimate*1000 + 1000))
+	b_primes = utils.get_primes_below(1000)
+
+	best_count = 0
+	best_a = 0
+	best_b = 0
+	for a in xrange(-999,1000):
+		for b in b_primes:
+			n = 1
+			while(True):
+				if (n**2 + n*a + b) in primes:
+					n+=1
+				else:
+					break
+			if n > best_count:
+				best_count = n
+				best_a = a
+				best_b = b
+	return best_a, best_b, best_count
+
+
+def problem_28():
+	results = np.array([[1,1,1,1]])
+	start = np.array([0,0,0,0])
+	for i, _ in enumerate(xrange(3, 1002, 2)):
+		increase = np.array([0,-2,-4,-6]) + 8*(i+1)
+		results = np.vstack([results, results[-1,:] + increase])
+
+	return np.sum(results[1:,:]) + 1
+
+
+def problem_29(): # Doesn't work
+	base_max = 100
+	exp_max = 100
+	uesful_exp_list = []
+	for i in xrange(2,base_max+1):
+		exponents = range(2, exp_max+1)
+
+		remove_exp1 = 2
+		while i**remove_exp1 <= base_max:
+			remove_exp2 = remove_exp1*2
+			while remove_exp2 <= exp_max:
+				if remove_exp2 in exponents:
+					exponents.remove(remove_exp2)
+					print "removed exp ", remove_exp2, " from ", i
+				remove_exp2 += remove_exp1
+
+			remove_exp1 += 1
+
+		uesful_exp_list.append(exponents)
+
+	# return sum([len(x) for x in uesfull_exp_list])
+	huge_set = set()
+	for indx, row in enumerate(uesful_exp_list):
+		for elem in row:
+			if (indx+2)**elem in huge_set:
+				print "base = ", indx+2, " exp = ", elem
+			huge_set.add((indx+2)**elem)
+	return huge_set
+
+def problem_29_brute():
+	massive_set = set()
+	for b in xrange(2,101):
+		for e in xrange(2,101):
+			massive_set.add(b**e)
+	# return len(massive_set)
+	return massive_set
+
+def problem_30(): #brute
+	results = []
+	for i in xrange(2, 200000): #picked arbitrarily, got lucky
+		nums = [int(x)**5 for x in str(i)]
+		if sum(nums) == i:
+			results.append(i)
+	return results
+
+def problem_31():
+
+	def make_change_options(currency_values, n, post_fix = []):
+		"""Makes change given an array of sorted currency values and an int"""
+		results = []
+		if len(currency_values) == 1:
+			return [n//currency_values[0]] + post_fix
+
+		for i in xrange(0, n//currency_values[-1] + 1):
+			post_fix_copy = post_fix[:]
+			results.extend(make_change_options(currency_values[:-1], n - i * currency_values[-1], [i] + post_fix_copy))
+
+		return results
+
+	currency = [1, 2, 5, 10, 20, 50, 100, 200]
+	amount = 200
+	return len(np.array(make_change_options(currency, amount)).reshape(-1, len(currency)))
+
+def problem_36():
+	num_sum = 0
+	for i in xrange(1000000):
+		if utils.is_palindrome("{0}".format(i)) and utils.is_palindrome("{0:b}".format(i)):
+			num_sum += i
+	return num_sum
+
+def problem_42():
+    count = 0
+
+    with open('euler_resources/words.txt', 'rb') as f:
+        reader = csv.reader(f, delimiter=',')
+        words = [row for row in reader][0]
+
+	triangle_nums = utils.triangle_numbers()
+	triangle_set = set([triangle_nums.next() for i in xrange(2000)]) #arbitrarily big
+	for word in words:
+		score = sum([ord(x.upper()) - 64 for x in word])
+		if score in triangle_set:
+			count += 1
+	return count
+
+
 
 def problem_67():
 
@@ -549,7 +715,6 @@ def problem_67():
 	return find_max_triangle_path(triangle)
 
 
-
-
-
+def problem_435():
+	pass
 
