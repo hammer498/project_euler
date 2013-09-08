@@ -681,6 +681,33 @@ def problem_31():
 	amount = 200
 	return len(np.array(make_change_options(currency, amount)).reshape(-1, len(currency)))
 
+def problem_32():
+	def is_pandigital(numbers):
+		"""determines if a list of numbers is pandigital"""
+		count = collections.Counter()
+		count.update([x for num in numbers for x in str(num)])
+		return all(x == 1 for x in count.values()) and len(count.keys()) == 9 and '0' not in count.keys()
+
+	a = 1
+	b = 1
+	prod_set = set()
+	while(True):
+		# a incrementing logic
+		b = a
+		while(True):
+			# b incrementing logic
+			if is_pandigital([a, b, a*b]):
+				prod_set.add(a*b)
+
+			b += 1
+			if len(str(a) + str(b) + str(a*b)) > 9:
+				break
+
+		a += 1
+		if len(str(a)*2 + str(a*a)) > 9:
+			break
+	return prod_set
+
 def problem_36():
 	num_sum = 0
 	for i in xrange(1000000):
