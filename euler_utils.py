@@ -1,5 +1,6 @@
 import itertools
 import operator
+import collections
 
 import numpy as np
 
@@ -119,3 +120,34 @@ def get_num_divizors(n, complete_prime_list = None):
 			n = n/prime
 		factor_count *= power
 	return factor_count
+
+def is_pandigital(numbers, require_all_digits = True):
+    """determines if a string of numbers is pandigital"""
+    if require_all_digits:
+    	must_contain = set([str(digit) for digit in xrange(1, 10)])
+    else:	
+    	must_contain = set([str(digit) for digit in xrange(1, len(numbers) + 1)])
+    	
+    count = collections.Counter()
+    count.update([x for num in numbers for x in str(num)])
+    return all(x == 1 for x in count.values()) and set(count.keys()) == must_contain
+
+# Dicksons method
+# http://en.wikipedia.org/wiki/Formulas_for_generating_Pythagorean_triples
+def pythagorean_triplets(return_r = False):
+    r = 2
+    while True:
+        product = r**2/2
+        factors = sorted(list(get_divizors(product)))
+        for factor in factors[:len(factors)//2]:
+            s = factor
+            t = t = product/factor
+            x = r + s
+            y = r + t
+            z = r + s + t
+            if return_r:
+                yield (x, y, z, r)
+            else:
+                yield (x, y, z)
+
+        r += 2

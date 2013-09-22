@@ -8,7 +8,7 @@ import collections
 import decimal
 import sympy
 import decimal
-
+import fractions
 
 
 import euler_utils as utils
@@ -583,7 +583,7 @@ def problem_26():
 			max_length = length_guess
 			best_val = i
 
-	return max_length, best_val
+	return best_val
 
 def problem_27():
 	max_n_estimate = 200
@@ -605,7 +605,7 @@ def problem_27():
 				best_count = n
 				best_a = a
 				best_b = b
-	return best_a, best_b, best_count
+	return best_a * best_b
 
 
 def problem_28():
@@ -618,42 +618,41 @@ def problem_28():
 	return np.sum(results[1:,:]) + 1
 
 
-def problem_29(): # Doesn't work
-	base_max = 100
-	exp_max = 100
-	uesful_exp_list = []
-	for i in xrange(2,base_max+1):
-		exponents = range(2, exp_max+1)
+# def problem_29(): # Doesn't work
+# 	base_max = 100
+# 	exp_max = 100
+# 	uesful_exp_list = []
+# 	for i in xrange(2,base_max+1):
+# 		exponents = range(2, exp_max+1)
 
-		remove_exp1 = 2
-		while i**remove_exp1 <= base_max:
-			remove_exp2 = remove_exp1*2
-			while remove_exp2 <= exp_max:
-				if remove_exp2 in exponents:
-					exponents.remove(remove_exp2)
-					print "removed exp ", remove_exp2, " from ", i
-				remove_exp2 += remove_exp1
+# 		remove_exp1 = 2
+# 		while i**remove_exp1 <= base_max:
+# 			remove_exp2 = remove_exp1*2
+# 			while remove_exp2 <= exp_max:
+# 				if remove_exp2 in exponents:
+# 					exponents.remove(remove_exp2)
+# 					print "removed exp ", remove_exp2, " from ", i
+# 				remove_exp2 += remove_exp1
 
-			remove_exp1 += 1
+# 			remove_exp1 += 1
 
-		uesful_exp_list.append(exponents)
+# 		uesful_exp_list.append(exponents)
 
-	# return sum([len(x) for x in uesfull_exp_list])
-	huge_set = set()
-	for indx, row in enumerate(uesful_exp_list):
-		for elem in row:
-			if (indx+2)**elem in huge_set:
-				print "base = ", indx+2, " exp = ", elem
-			huge_set.add((indx+2)**elem)
-	return huge_set
+# 	# return sum([len(x) for x in uesfull_exp_list])
+# 	huge_set = set()
+# 	for indx, row in enumerate(uesful_exp_list):
+# 		for elem in row:
+# 			if (indx+2)**elem in huge_set:
+# 				print "base = ", indx+2, " exp = ", elem
+# 			huge_set.add((indx+2)**elem)
+# 	return huge_set
 
-def problem_29_brute():
+def problem_29(): #brute, ouch
 	massive_set = set()
 	for b in xrange(2,101):
 		for e in xrange(2,101):
 			massive_set.add(b**e)
-	# return len(massive_set)
-	return massive_set
+	return len(massive_set)
 
 def problem_30(): #brute
 	results = []
@@ -661,7 +660,7 @@ def problem_30(): #brute
 		nums = [int(x)**5 for x in str(i)]
 		if sum(nums) == i:
 			results.append(i)
-	return results
+	return sum(results)
 
 def problem_31():
 
@@ -682,11 +681,6 @@ def problem_31():
 	return len(np.array(make_change_options(currency, amount)).reshape(-1, len(currency)))
 
 def problem_32():
-	def is_pandigital(numbers):
-		"""determines if a list of numbers is pandigital"""
-		count = collections.Counter()
-		count.update([x for num in numbers for x in str(num)])
-		return all(x == 1 for x in count.values()) and len(count.keys()) == 9 and '0' not in count.keys()
 
 	a = 1
 	b = 1
@@ -696,7 +690,7 @@ def problem_32():
 		b = a
 		while(True):
 			# b incrementing logic
-			if is_pandigital([a, b, a*b]):
+			if utils.is_pandigital([a, b, a*b]):
 				prod_set.add(a*b)
 
 			b += 1
@@ -706,7 +700,63 @@ def problem_32():
 		a += 1
 		if len(str(a)*2 + str(a*a)) > 9:
 			break
-	return prod_set
+	return sum(prod_set)
+
+def problem_33():
+	results = []
+	for num in xrange(10,99):
+		for den in xrange(num+1,100):
+			if num %10 == 0 and den %10 == 0:
+				continue
+			ns = collections.Counter(str(num))
+			ds = collections.Counter(str(den))
+			if len(ns - ds) == 1 and (ns-ds).values()[0] == 1:
+				n1 = int((ns-ds).keys()[0])
+				d1 = int((ds-ns).keys()[0])
+
+				if d1 == 0:
+					continue
+				if float(n1)/d1 == float(num)/den:
+					results.append([num, den])
+
+	# results now contains all the numerator and denominator pairs, just need to multiply and reduce
+	results = np.array(results)
+	final_frac = np.prod(results, 0)
+	return fractions.Fraction(*final_frac).denominator
+
+def problem_34():
+	fact_dict = {}
+	for i in xrange(10):
+		fact_dict[i] = math.factorial(i)
+
+	num_sum = 0
+	for i in xrange(3, fact_dict[9]*6): #6*9! < 999999 need MUCH better upper bound, but this works
+		if sum(fact_dict[int(x)] for x in str(i)) == i:
+			num_sum += i
+	return num_sum
+
+def problem_35():
+	def rotate_num(n):
+		if n < 10:
+			return n
+		chars = [c for c in str(n)]
+		chars.insert(0, chars.pop())
+		return int(reduce(operator.add, chars))
+
+	primes = set(utils.get_primes_below(1000000))
+	count = 0
+	for p in primes:
+		worked = True
+		for i in xrange(len(str(p))):
+			p = rotate_num(p)
+			if not p in primes:
+				worked = False
+				break
+
+		if worked:
+			count += 1
+	return count
+
 
 def problem_36():
 	num_sum = 0
@@ -714,6 +764,107 @@ def problem_36():
 		if utils.is_palindrome("{0}".format(i)) and utils.is_palindrome("{0:b}".format(i)):
 			num_sum += i
 	return num_sum
+
+def problem_37():
+	def is_truncatable_both_directions(prime, primes):
+		
+		str_prime = str(prime)
+		for i in xrange(len(str_prime)):
+			if not (int(str_prime[i:]) in primes and int(str_prime[:i+1]) in primes):
+				return False
+		return True
+
+	primes = set(utils.get_primes_below(1000000))
+
+	results = [prime for prime in primes if is_truncatable_both_directions(prime, primes)]
+	return sum(results[4:])
+
+def problem_38():
+	base = 1
+	multipliers = range(1,10)
+	possibilities = []
+	finished = False
+	while not finished:
+	# for j in xrange(2):
+
+		for i in xrange(2,10):
+			parts = [str(base * m) for m in multipliers[:i]]
+			num = reduce(operator.add, parts)
+			if len(num) > 9:
+				if i == 2:
+					finished = True
+				continue
+			if utils.is_pandigital(num):
+				possibilities.append(int(num))
+
+		base += 1
+
+	return max(possibilities)
+
+def problem_39():
+	count = collections.Counter()
+	quit_count = 0
+	triplets = utils.pythagorean_triplets(return_r = True)
+	r = 0
+	while r < 1000: #excessive but this is fast enough
+		triplet = triplets.next()
+		r = triplet[-1]
+		triplet = triplet[:3]
+		s = sum(triplet)
+		if s < 1000:
+			count.update([s])
+		else:
+			quit_count += 1
+	return max(count.iteritems(), key = operator.itemgetter(1))[0]
+
+#it hurts to brute force this when it could be done so much smarter, but I have to catch up :)
+def problem_40():
+	huge_number = ''
+	i = 1
+	while len(huge_number) < 1000000:
+		huge_number += str(i)
+		i += 1
+
+	return reduce(operator.mul, (int(huge_number[10**x - 1]) for x in xrange(6)))
+
+# def problem_40(): #Doesn't work but would be so fast
+# 	def get_index_values(indices):
+# 		max_index = max(indices)
+# 		lengths = [0, 9]
+# 		length = 1
+# 		max_calculated = 9
+# 		while max_calculated < max_index:
+# 			length += 1
+# 			max_calculated += 9*10**(length-1)*length
+# 			lengths.append(max_calculated)
+
+# 		print lengths
+
+# 		lengths = np.array(lengths)
+# 		results = []
+# 		for i in indices:
+# 			if i == 0: #HACK
+# 				results.append(1)
+# 				continue
+# 			length = np.searchsorted(lengths, i) 
+# 			num_indx = (i - lengths[length - 1]) //length
+# 			num = lengths[length - 1] + num_indx + 1
+# 			dig_indx = (i - lengths[length - 1])%length
+# 			print i, length, num, num_indx, dig_indx, lengths
+# 			results.append(int(str(num)[dig_indx]))
+
+# 		return results
+
+# 	one_indexed_values = np.array([1, 10, 100, 1000, 10000, 100000])
+# 	# one_indexed_values = np.array([1, 10, 100, 1000])
+# 	return get_index_values(one_indexed_values - 1)
+
+# def problem_41():
+# 	primes = utils.get_primes_below(1000000000)
+# 	for prime in primes:
+
+def problem_41():
+	pass
 
 def problem_42():
     count = 0
@@ -731,7 +882,6 @@ def problem_42():
 	return count
 
 
-
 def problem_67():
 
 	with open('euler_resources/triangle.txt', 'rb') as f:
@@ -740,6 +890,64 @@ def problem_67():
 
 	triangle = [[int(elem) for elem in row] for row in triangle]
 	return find_max_triangle_path(triangle)
+
+def problem_227(): #too slow
+	board_size = 100
+	def index(i):
+		if i >= board_size:
+			return i % board_size
+		elif i < 0:
+			return board_size + i
+		else:
+			return i
+
+
+	def update_board(board):
+		new_board = np.zeros(board.shape)
+		for ri in xrange(board.shape[0]):
+			for ci in xrange(board.shape[0]):
+				# game over case
+				if ri == ci:
+					new_board[ri,ci] += board[ri,ci]
+					continue
+
+				# right up
+				new_board[index(ri+6), index(ci+6)] += board[ri,ci] * 1/6. * 1/6.
+				# right center
+				new_board[ri, index(ci+6)] += board[ri,ci] * 1/6. * 2/3.
+				# right down
+				new_board[index(ri-1), index(ci+6)] += board[ri,ci] * 1/6. * 1/6.
+
+				# center up
+				new_board[index(ri+6), ci] += board[ri,ci] * 1/6. * 2/3.
+				# center
+				new_board[ri,ci] += board[ri,ci] * 2/3. * 2/3.
+				# center down
+				new_board[index(ri-1),ci] += board[ri,ci] * 1/6. * 2/3.
+
+				# left up
+				new_board[index(ri+6), index(ci-1)] += board[ri,ci] * 1/6. * 1/6.
+				# left center
+				new_board[ri, index(ci-1)] += board[ri,ci] * 1/6. * 2/3.
+				# left down
+				new_board[index(ri-1), index(ci-1)] += board[ri,ci] * 1/6. * 1/6.
+
+		return new_board
+
+	game_board = np.zeros((board_size,board_size), dtype = float)
+	game_board[0,49] = 1
+
+	expectation = 0
+	old_trace = 0
+	new_trace = 0
+	i = 1
+	while True:
+		game_board = update_board(game_board)
+		old_trace = new_trace
+		new_trace = game_board.trace()
+		expectation += (new_trace - old_trace) * i
+		print expectation, i, new_trace, new_trace - old_trace
+		i += 1
 
 
 def problem_435():

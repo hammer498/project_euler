@@ -46,7 +46,39 @@ def test_problem_22():
 	assert project_euler.problem_22() == 871198282
 def test_problem_23():
 	assert project_euler.problem_23() == 4179871
-def test_problem_24():
-	assert project_euler.problem_24() == 2783915460
+def test_problem_25():
+	assert project_euler.problem_25() == 4782
+def test_problem_26():
+	assert project_euler.problem_26() == 983
+def test_problem_27():
+	assert project_euler.problem_27() == -59231
+def test_problem_28():
+	assert project_euler.problem_28() == 669171001
+def test_problem_29():
+	assert project_euler.problem_29() == 9183
+def test_problem_30():
+	assert project_euler.problem_30() == 443839
+def test_problem_31():
+	assert project_euler.problem_31() == 73682
+def test_problem_32():
+	assert project_euler.problem_32() == 45228
+def test_problem_33():
+	assert project_euler.problem_33() == 100
+def test_problem_34():
+	assert project_euler.problem_34() == 40730
+def test_problem_35():
+	assert project_euler.problem_35() == 55
+def test_problem_36():
+	assert project_euler.problem_36() == 872187
+def test_problem_37():
+	assert project_euler.problem_37() == 748317
+def test_problem_38():
+	assert project_euler.problem_38() == 932718654
+def test_problem_39():
+	assert project_euler.problem_39() == 840
+def test_problem_40():
+	assert project_euler.problem_40() == 210
+
+
 def test_problem_67():
 	assert project_euler.problem_67() == 7273
