@@ -1,6 +1,7 @@
 import itertools
 import operator
 import collections
+import ipdb
 
 import numpy as np
 
@@ -22,6 +23,7 @@ def fibonnaci():
 		yield curr
 
 def is_palindrome(number):
+	ipdb.set_trace()
 	number = str(number)
 	for i in range(len(number)):
 		if number[i] != number[-i-1]:
@@ -77,6 +79,13 @@ def get_primes_below(number):
 	primes[0] = 2
 	return primes
 
+def is_prime(number):
+	for i in xrange(2, int(np.sqrt(number)) + 1):
+		if number % i == 0:
+			return False
+
+	return True
+
 def get_divizors(n, proper = False):
 	divizors = set()
 	for x in xrange(1, int(n**.5 + 1)):
@@ -124,13 +133,15 @@ def get_num_divizors(n, complete_prime_list = None):
 def is_pandigital(numbers, require_all_digits = True):
     """determines if a string of numbers is pandigital"""
     if require_all_digits:
-    	must_contain = set([str(digit) for digit in xrange(1, 10)])
+    	must_contain = set('123456789')
     else:	
     	must_contain = set([str(digit) for digit in xrange(1, len(numbers) + 1)])
-    	
-    count = collections.Counter()
-    count.update([x for num in numbers for x in str(num)])
-    return all(x == 1 for x in count.values()) and set(count.keys()) == must_contain
+
+    result = set(numbers)
+    return len(numbers) == len(result) and result == must_contain
+    # count = collections.Counter()
+    # count.update([x for num in numbers for x in str(num)])
+    # return all(x == 1 for x in count.values()) and set(count.keys()) == must_contain
 
 # Dicksons method
 # http://en.wikipedia.org/wiki/Formulas_for_generating_Pythagorean_triples
@@ -151,3 +162,61 @@ def pythagorean_triplets(return_r = False):
                 yield (x, y, z)
 
         r += 2
+
+def pandigitals(length, include_0 = False):
+	digits = [str(x) for x in xrange(length, 0, -1)]
+	if include_0:
+		digits.append('0')
+	gen = itertools.permutations(digits, len(digits))
+	for elem in gen:
+		yield int(reduce(operator.add, elem))
+
+def pentagonals():
+    n = 1
+    while(True):
+        yield n*(3*n-1)/2
+        n += 1
+
+def is_pentagonal(p):
+    if p < 1:
+        return False
+
+    a = 3.
+    b = -1.
+    c = -p*2.
+    n = (-b + np.sqrt(b**2 - 4*a*c))/(2*a)
+    if n == int(n):
+        return True
+    else:
+        return False
+
+def is_hexagonal(h):
+    if h < 1:
+        return False    
+    a = 2.
+    b = -1.
+    c = -h
+    n = (-b + np.sqrt(b**2 - 4*a*c))/(2*a)
+    if n == int(n):
+        return True
+    else:
+        return False
+
+def triangulars():
+	n = 1
+	while(True):
+		yield n*(n+1)/2
+		n += 1
+
+def is_triangular(t):
+    if t < 1:
+        return False
+
+    a = 2.
+    b = -1.
+    c = -t*2.
+    n = (-b + np.sqrt(b**2 - 4*a*c))/(2*a)
+    if n == int(n):
+        return True
+    else:
+        return False
